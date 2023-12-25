@@ -14,6 +14,7 @@ display_usage_simple() {
 	echo "Output files are saved to ./output/profile"
 	echo "Currently supported profiles:"
 	echo "rzn1: The Renesas RZ/N1"
+	echo "rcar-next: The Renesas R-Car linux-next code"
 	echo "tx2: The Nvidia Jetson TX2 NX"
 	echo "radxa_cm3_io: The Radxa BSP for CM3 IO board"
 	echo "For all advanced options, see the -a option"
@@ -25,6 +26,7 @@ display_usage_advanced() {
 	echo "Compilation occurs under /tmp/linux/<profile>"
 	echo "-p : Profile, select the target platform [rzn1]"
 	echo "		[rzn1]	: The Renesas RZ/N1"
+	echo "          [rcar-next]: The Renesas R-Car linux-next code"
 	echo "          [tx2]: The Nvidia Jetson TX2 NX"
 	echo "          [radxa_cm3_io]: The Radxa BSP CM3 IO"
 	echo "-a : Adanced Help, show this message with all options"
@@ -137,6 +139,15 @@ load_profile() {
 				echo "Found cross compiler at $CROSS_COMPILER_PATH"
 			fi
 			;;
+		rcar-next)
+			echo "R-Car linux-next profile selected"
+
+			if [[ ! -d "$CROSS_COMPILER_PATH" ]]; then
+				setup_tx2nx_cross_compiler
+			else
+				echo "R-Car toolchain exists in $CROSS_COMPILER_PATH"
+			fi
+			;;
 		*)
 			echo "Error: Unknown hardware profile...Using Default"
 
@@ -148,7 +159,7 @@ compile_dtbs() {
 
 	for DTB in "${DTBS[@]}"
 	do :
-		make O=$COMPILE_DIR $DTB > /dev/null
+		make O=$COMPILE_DIR $VENDOR$DTB > /dev/null
 	done
 }
 
