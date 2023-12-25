@@ -6,6 +6,9 @@
 SOURCE_DIR=$PWD
 OUTPUT_DIR=$PWD/output
 
+# Default to not updating NFS directories
+NFS_UPDATE=false
+
 display_usage_simple() {
 	echo "*** Kernel Compilation Profiler ***"
 	echo "Compiles the Linux kernel and device tree"
@@ -30,6 +33,7 @@ display_usage_advanced() {
 	echo "          [tx2]: The Nvidia Jetson TX2 NX"
 	echo "          [radxa_cm3_io]: The Radxa BSP CM3 IO"
 	echo "-a : Adanced Help, show this message with all options"
+	echo "-n : NFS Update, update the platforms NFS directory"
 	echo "-h : Simple Help, show a simplifed quick start help message"
 }
 
@@ -188,7 +192,7 @@ handle_outputs() {
 	cp $OUTPUT_DIR* $NFS_DIR
 }
 
-while getopts p:ha flag
+while getopts p:han flag
 do
 	case "${flag}" in
 		p)
@@ -201,6 +205,8 @@ do
 		a)
 			display_usage_advanced
 			exit 0
+			;;
+		n)	NFS_UPDATE=true
 			;;
 		:)
 			echo "Error: Option is missing an argument."
@@ -219,4 +225,7 @@ setup_env
 apply_config
 compile_image
 compile_dtbs
-#handle_outputs
+
+if [ "$NFS_UPDATE" = true ]; then
+	handle_outputs
+fi
