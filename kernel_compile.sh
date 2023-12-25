@@ -148,22 +148,22 @@ compile_dtbs() {
 
 	for DTB in "${DTBS[@]}"
 	do :
-		make O=$COMPILE_DIR $DTB #> /dev/null 2>&1
+		make O=$COMPILE_DIR $DTB > /dev/null
 	done
 }
 
 apply_config() {
 	echo "Applying $DEFCONFIG kernel configuration file"
-	make O=$COMPILE_DIR $DEFCONFIG
+	make O=$COMPILE_DIR $DEFCONFIG > /dev/null
 }
 
 compile_image() {
 	echo "Compiling Kernel Image"
 
 	if [ ! -z ${LOAD_ADDR} ]; then
-		make -j3 O=$COMPILE_DIR LOADADDR=$LOAD_ADDR $IMAGE_TYPE #> /dev/null 2>&1
+		make -j3 O=$COMPILE_DIR LOADADDR=$LOAD_ADDR $IMAGE_TYPE > /dev/null
 	else
-		make -j3 O=$COMPILE_DIR $IMAGE_TYPE #> /dev/null 2>&1
+		make -j3 O=$COMPILE_DIR $IMAGE_TYPE > /dev/null
 	fi
 }
 
