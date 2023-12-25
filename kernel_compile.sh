@@ -160,7 +160,7 @@ apply_config() {
 compile_image() {
 	echo "Compiling Kernel Image"
 
-	if [ -z ${LOAD_ADDR} ]; then
+	if [ ! -z ${LOAD_ADDR} ]; then
 		make -j3 O=$COMPILE_DIR LOADADDR=$LOAD_ADDR $IMAGE_TYPE #> /dev/null 2>&1
 	else
 		make -j3 O=$COMPILE_DIR $IMAGE_TYPE #> /dev/null 2>&1
