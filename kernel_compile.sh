@@ -3,16 +3,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Description		 : A kernel compile script intended for cross compiling
 
-# Set some defaults
-PROFILE=default
-DEFCONFIG="rzn1_defconfig"
-IMAGE_TYPE="uImage"
-DTBS=(rzn1d400-db.dtb)
-COMPILE_DIR=/tmp/linux
 SOURCE_DIR=$PWD
 OUTPUT_DIR=$PWD/output
-NFS_DIR=/tftpboot/rzn1/
-CROSS_COMPILER_PATH=/usr/share/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf/bin
 
 display_usage_simple() {
 	echo "*** Kernel Compilation Profiler ***"
@@ -37,6 +29,10 @@ display_usage_advanced() {
 	echo "          [radxa_cm3_io]: The Radxa BSP CM3 IO"
 	echo "-a : Adanced Help, show this message with all options"
 	echo "-h : Simple Help, show a simplifed quick start help message"
+}
+
+find_platforms_dir() {
+	PLATFORMS_DIR=$(dirname ${BASH_SOURCE[0]})/platforms
 }
 
 setup_radxa_cm3_io_cross_compiler() {
@@ -86,10 +82,10 @@ setup_rzn1_cross_compiler() {
 	        [Yy]* )
 			echo "Downloading RZ/N1 Cross Compiler..."
 			mkdir -p $COMPILE_DIR/downloads
-			wget -qP $COMPILE_DIR/downloads https://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz
+			wget -qP $COMPILE_DIR/downloads https://releases.linaro.org/components/toolchain/binaries/6.3-2017.05/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
 
 			echo "Installing RZ/N1 Cross Compiler..."
-			sudo tar -xf $COMPILE_DIR/downloads/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/share
+			sudo tar -xf $COMPILE_DIR/downloads/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/share
 			rm -R $COMPILE_DIR/downloads
 
 			echo "RZ/N1 Cross Compiler installed."
@@ -109,21 +105,11 @@ setup_rzn1_cross_compiler() {
 }
 
 load_profile() {
+	source $PLATFORMS_DIR/$1/constants.sh
+
 	case $1 in
 		rzn1)
 			echo "RZ/N1 profile selected"
-			LOAD_ADDR=80008000
-			DEFCONFIG="rzn1_defconfig"
-			COMPILE_DIR=/tmp/linux/rzn1
-			IMAGE_TYPE="uImage"
-			DTBS=(rzn1d400-db.dtb rzn1d400-db-both-gmacs.dtb rzn1d400-db-cm3-ethercat.dtb rzn1d400-db-no-cm3.dtb)
-			OUTPUT_DIR=$PWD/output/rzn1/
-			NFS_DIR=/tftpboot/rzn1/
-			CROSS_COMPILER_PATH="/usr/share/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf/bin"
-
-			export PATH=$CROSS_COMILER_PATH:$PATH
-			export CROSS_COMPILE="arm-linux-gnueabihf-"
-			export ARCH=arm
 
 			if [ ! -d "$CROSS_COMPILER_PATH" ]; then
 				setup_rzn1_cross_compiler
@@ -133,20 +119,6 @@ load_profile() {
 			;;
 		tx2)
 			echo "Nvidia Jetson TX2 profile selected"
-			DEFCONFIG="tegra_defconfig"
-			COMPILE_DIR=/tmp/linux/jetson_tx2
-			IMAGE_TYPE="Image"
-			DTBS=(tegra186-p3636-0001-p3509-0000-a01.dtb)
-			OUTPUT_DIR=$PWD/output/jetson-tx2/
-			NFS_DIR=/tftpboot/jetson-tx2/
-			JETSON_CROSS_COMPILER_VERSION=7.3.1-2018.05
-			JETSON_CROSS_COMPILER=gcc-linaro-$JETSON_CROSS_COMPILER_VERSION-x86_64_aarch64-linux-gnu
-			CROSS_COMPILER_PATH=/usr/share/$JETSON_CROSS_COMPILER/bin
-			LOADADDR=80280000
-
-			export PATH=$CROSS_COMPILER_PATH:$PATH
-			export CROSS_COMPILE="aarch64-linux-gnu-"
-			export ARCH=arm64
 
 			if [[ ! -d "$CROSS_COMPILER_PATH" ]]; then
 				setup_tx2nx_cross_compiler
@@ -156,17 +128,6 @@ load_profile() {
 			;;
 		radxa_cm3_io)
 			echo "Radxa CM3 IO profile selected"
-			DEFCONFIG="rockchip_linux_defconfig"
-			COMPILE_DIR=/tmp/linux/radxa_cm3_io
-			IMAGE_TYPE="Image"
-			DTBS=(rockchip/rk3566-radxa-cm3-io.dtb)
-			OUTPUT_DIR=$PWD/output/radxa_cm3_io/
-			NFS_DIR=/tftpboot/radxa_cm3_io/
-			CROSS_COMPILER_PATH="/usr/local/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/"
-			export PATH=$CROSS_COMPILER_PATH:$PATH
-
-			export CROSS_COMPILE="aarch64-none-linux-gnu-"
-			export ARCH=arm64
 
 			FILE=/usr/local/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-rockchip1031-linux-gnu-gcc
 
@@ -241,6 +202,7 @@ do
 	esac
 done
 
+find_platforms_dir
 load_profile $PROFILE
 setup_env
 apply_config
