@@ -6,15 +6,6 @@
 #			   repository.
 #
 
-
-#!/bin/bash
-# Author		 : Gareth Williams
-# License		 : LGPL-3.0-or-later
-# SPDX-License-Identifier: GPL-2.0+
-# Description		 : A kernel compile script intended for cross compiling
-
-AUTHOR="Gareth Williams"
-
 # TODO: Signed-off-by line parsing for contributor involvement
 # TODO: Reviewed-by parsing for amount of reviews
 
