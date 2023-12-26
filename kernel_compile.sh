@@ -188,8 +188,14 @@ setup_env() {
 }
 
 handle_outputs() {
-	echo "Copying to NFS directory"
-	cp $OUTPUT_DIR* $NFS_DIR
+	echo "Copying output to: $OUTPUT_DIR"
+	cp $COMPILE_DIR/arch/$ARCH/boot/$IMAGE_TYPE $OUTPUT_DIR
+	cp $COMPILE_DIR/arch/$ARCH/boot/dts/$VENDOR*.dtb $OUTPUT_DIR
+
+	if [ "$NFS_UPDATE" = true ]; then
+		echo "Copying to NFS directory"
+		cp $OUTPUT_DIR* $NFS_DIR
+	fi
 }
 
 while getopts p:han flag
@@ -225,7 +231,4 @@ setup_env
 apply_config
 compile_image
 compile_dtbs
-
-if [ "$NFS_UPDATE" = true ]; then
-	handle_outputs
-fi
+handle_outputs
