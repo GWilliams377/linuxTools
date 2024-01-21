@@ -9,6 +9,14 @@ OUTPUT_DIR=$PWD/output
 # Default to not updating NFS directories
 NFS_UPDATE=false
 
+print_platform_descriptions() {
+	for i in "${PLATFORMS[@]}"
+	do
+		. $PLATFORMS_DIR/$i/meta.sh
+		echo "	[$i]: $DESC"
+	done
+}
+
 display_usage_simple() {
 	echo "*** Kernel Compilation Profiler ***"
 	echo "Compiles the Linux kernel and device tree"
@@ -16,10 +24,7 @@ display_usage_simple() {
 	echo "Use the -p option to select a profile\n"
 	echo "Output files are saved to ./output/profile"
 	echo "Currently supported profiles:"
-	echo "rzn1: The Renesas RZ/N1"
-	echo "rcar-next: The Renesas R-Car linux-next code"
-	echo "tx2: The Nvidia Jetson TX2 NX"
-	echo "radxa_cm3_io: The Radxa BSP for CM3 IO board"
+	print_platform_descriptions
 	echo "For all advanced options, see the -a option"
 
 }
@@ -28,134 +33,23 @@ display_usage_advanced() {
 	echo "All options help:"
 	echo "Compilation occurs under /tmp/linux/<profile>"
 	echo "-p : Profile, select the target platform [rzn1]"
-	echo "		[rzn1]	: The Renesas RZ/N1"
-	echo "          [rcar-next]: The Renesas R-Car linux-next code"
-	echo "          [tx2]: The Nvidia Jetson TX2 NX"
-	echo "          [radxa_cm3_io]: The Radxa BSP CM3 IO"
+	print_platform_descriptions
 	echo "-a : Adanced Help, show this message with all options"
 	echo "-n : NFS Update, update the platforms NFS directory"
 	echo "-h : Simple Help, show a simplifed quick start help message"
 }
 
-find_platforms_dir() {
+find_platforms() {
 	PLATFORMS_DIR=$(dirname ${BASH_SOURCE[0]})/platforms
-}
 
-setup_radxa_cm3_io_cross_compiler() {
-	echo "Radxa CM3 IO Cross compiler not found, install it? [Y/n]"
-	read install_rzn_cc
-
-	case $install_rzn_cc in
-	        [Yy]* )
-			echo "Installing Radxa CM3 IO Cross Compiler..."
-			wget https://dl.radxa.com/tools/linux/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.gz
-			sudo tar zxvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.gz -C /usr/local/
-
-			echo "Radxa Cross Compiler installed."
-		;;
-	        [Nn]* )
-			echo "Error: Radxa CM3 IO requires a suitable cross compiler"
-			exit 1
-		;;
-
-		* )
-			echo "Error: Unknown response..."
-			exit 1
-		;;
-	esac
-}
-
-setup_tx2nx_cross_compiler() {
-	JETSON_CROSS_COMPILER_VERSION_BASE=7.3-2018.05
-	JETSON_CROSS_COMPILER_DOWNLOAD=$JETSON_CROSS_COMPILER".tar.xz"
-
-	echo "Downloading Nvidia Jetson TX2 NX Cross Compiler..."
-	mkdir -p $COMPILE_DIR/downloads
-	wget -qP $COMPILE_DIR/downloads http://releases.linaro.org/components/toolchain/binaries/$JETSON_CROSS_COMPILER_VERSION_BASE/aarch64-linux-gnu/$JETSON_CROSS_COMPILER_DOWNLOAD
-
-	echo "Installing Jetson TX2 Cross Compiler..."
-	sudo tar -xf $COMPILE_DIR/downloads/$JETSON_CROSS_COMPILER_DOWNLOAD -C /usr/share
-	rm -R $COMPILE_DIR/downloads
-
-	echo "Nvidia Jetson TX2 NX Cross Compiler installed."
-}
-
-setup_rzn1_cross_compiler() {
-	echo "RZ/N1 Cross compiler not found, install it? [Y/n]"
-	read install_rzn_cc
-
-	case $install_rzn_cc in
-	        [Yy]* )
-			echo "Downloading RZ/N1 Cross Compiler..."
-			mkdir -p $COMPILE_DIR/downloads
-			wget -qP $COMPILE_DIR/downloads https://releases.linaro.org/components/toolchain/binaries/6.3-2017.05/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
-
-			echo "Installing RZ/N1 Cross Compiler..."
-			sudo tar -xf $COMPILE_DIR/downloads/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/share
-			rm -R $COMPILE_DIR/downloads
-
-			echo "RZ/N1 Cross Compiler installed."
-		;;
-	        [Nn]* )
-			echo "Error: RZ/N1 requires a suitable cross compiler"
-			echo "Please see documentation:"
-			echo "https://www.renesas.com/eu/en"
-			exit 1
-		;;
-
-		* )
-			echo "Error: Unknown response..."
-			exit 1
-		;;
-	esac
+	PLATFORMS=$(ls $PLATFORMS_DIR)
+	PLATFORMS=($PLATFORMS)
 }
 
 load_profile() {
 	source $PLATFORMS_DIR/$1/constants.sh
-
-	case $1 in
-		rzn1)
-			echo "RZ/N1 profile selected"
-
-			if [ ! -d "$CROSS_COMPILER_PATH" ]; then
-				setup_rzn1_cross_compiler
-			else
-				echo "Found cross compiler at $CROSS_COMPILER_PATH"
-			fi
-			;;
-		tx2)
-			echo "Nvidia Jetson TX2 profile selected"
-
-			if [[ ! -d "$CROSS_COMPILER_PATH" ]]; then
-				setup_tx2nx_cross_compiler
-			else
-				echo "Jetson toolchain exists in $CROSS_COMPILER_PATH"
-			fi
-			;;
-		radxa_cm3_io)
-			echo "Radxa CM3 IO profile selected"
-
-			FILE=/usr/local/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-rockchip1031-linux-gnu-gcc
-
-			if ! [ -f "$FILE" ]; then
-				setup_radxa_cm3_io_cross_compiler
-			else
-				echo "Found cross compiler at $CROSS_COMPILER_PATH"
-			fi
-			;;
-		rcar-next)
-			echo "R-Car linux-next profile selected"
-
-			if [[ ! -d "$CROSS_COMPILER_PATH" ]]; then
-				setup_tx2nx_cross_compiler
-			else
-				echo "R-Car toolchain exists in $CROSS_COMPILER_PATH"
-			fi
-			;;
-		*)
-			echo "Error: Unknown hardware profile...Using Default"
-
-	esac
+	source $PLATFORMS_DIR/$1/meta.sh
+	echo "$NAME Profile Selected"
 }
 
 compile_dtbs() {
@@ -198,6 +92,8 @@ handle_outputs() {
 	fi
 }
 
+find_platforms
+
 while getopts p:han flag
 do
 	case "${flag}" in
@@ -225,7 +121,6 @@ do
 	esac
 done
 
-find_platforms_dir
 load_profile $PROFILE
 setup_env
 apply_config
