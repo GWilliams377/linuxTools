@@ -84,7 +84,11 @@ setup_env() {
 handle_outputs() {
 	echo "Copying output to: $OUTPUT_DIR"
 	cp $COMPILE_DIR/arch/$ARCH/boot/$IMAGE_TYPE $OUTPUT_DIR
-	cp $COMPILE_DIR/arch/$ARCH/boot/dts/$VENDOR*.dtb $OUTPUT_DIR
+
+	for DTB in "${DTBS[@]}"
+	do :
+		cp $COMPILE_DIR/arch/$ARCH/boot/dts/$DTB $OUTPUT_DIR
+	done
 
 	if [ "$NFS_UPDATE" = true ]; then
 		echo "Copying to NFS directory"

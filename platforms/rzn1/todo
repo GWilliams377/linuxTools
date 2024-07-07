@@ -1,0 +1,7 @@
+install optional dependencies option:
+
+needed to compile kernel:
+bison flex build-essential 
+
+might be just rzn1:
+libgmp3-dev libmpc-dev lzop u-boot-tools
