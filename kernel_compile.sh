@@ -69,10 +69,19 @@ apply_config() {
 compile_image() {
 	echo "Compiling Kernel Image..."
 
+	COMPILE_CMD=""
+
 	if [ ! -z ${LOAD_ADDR} ]; then
-		make -j3 O=$COMPILE_DIR LOADADDR=$LOAD_ADDR $IMAGE_TYPE > /dev/null
+		COMPILE_CMD="make -j3 O=$COMPILE_DIR LOADADDR=$LOAD_ADDR $IMAGE_TYPE > /dev/null"
 	else
-		make -j3 O=$COMPILE_DIR $IMAGE_TYPE > /dev/null
+		COMPILE_CMD="make -j3 O=$COMPILE_DIR $IMAGE_TYPE > /dev/null"
+	fi
+
+	if eval $COMPILE_CMD ; then
+		echo "kernel compilation complete"
+	else
+		echo "kernel compilation failed"
+		exit 1
 	fi
 }
 
