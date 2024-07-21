@@ -5,6 +5,5 @@
 #			   RZ/N1 platform
 
 DESC="The Renesas RZ/N1"
-NAME=
-"Renesas RZ/N1"
+NAME="Renesas RZ/N1"
 SHORT="rzn1"
