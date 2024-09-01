@@ -2,9 +2,8 @@
 # Author		 : Gareth Williams
 # SPDX-License-Identifier: GPL-2.0+
 # Description		 : Platform specific kernel compilation constants
-#			   for the RZ/N1 platform
+#			   for the R-Car platform using the upstream kernel
 
-#LOAD_ADDR=80008000
 DEFCONFIG="defconfig"
 COMPILE_DIR=/tmp/linux/rcar
 IMAGE_TYPE="Image"
