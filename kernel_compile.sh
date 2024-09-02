@@ -9,13 +9,7 @@ OUTPUT_DIR=$PWD/output
 # Default to not updating NFS directories
 NFS_UPDATE=false
 
-print_platform_descriptions() {
-	for i in "${PLATFORMS[@]}"
-	do
-		. $PLATFORMS_DIR/$i/meta.sh
-		echo "	[$i]: $DESC"
-	done
-}
+source $(dirname "$0")/utils.sh
 
 display_usage_simple() {
 	echo "*** Kernel Compilation Profiler ***"
@@ -37,13 +31,6 @@ display_usage_advanced() {
 	echo "-a : Adanced Help, show this message with all options"
 	echo "-n : NFS Update, update the platforms NFS directory"
 	echo "-h : Simple Help, show a simplifed quick start help message"
-}
-
-find_platforms() {
-	PLATFORMS_DIR=$(dirname ${BASH_SOURCE[0]})/platforms
-
-	PLATFORMS=$(ls $PLATFORMS_DIR)
-	PLATFORMS=($PLATFORMS)
 }
 
 load_profile() {
