@@ -84,6 +84,11 @@ handle_outputs() {
 	for DTB in "${DTBS[@]}"
 	do :
 		cp $COMPILE_DIR/arch/$ARCH/boot/dts/$DTB $OUTPUT_DIR
+
+		if [ $? -ne 0 ]; then
+			echo "Failed to compile $DTB"
+			exit 1
+		fi
 	done
 
 	if [ "$NFS_UPDATE" = true ]; then
