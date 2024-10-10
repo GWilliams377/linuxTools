@@ -13,7 +13,7 @@ source $(dirname "$0")/utils.sh
 
 display_usage_simple() {
 	echo "*** Kernel Compilation Profiler ***"
-	echo "Compiles the Linux kernel and device tree"
+	echo "Compiles the Linux kernel image, modules and device trees"
 	echo "for hardware targets based on their manuals (i.e a Profile)"
 	echo "Use the -p option to select a profile\n"
 	echo "Output files are saved to ./output/profile"
@@ -30,6 +30,7 @@ display_usage_advanced() {
 	print_platform_descriptions
 	echo "-a : Adanced Help, show this message with all options"
 	echo "-n : NFS Update, update the platforms NFS directory"
+	echo "-m : Force module compilation, default defined by platform"
 	echo "-h : Simple Help, show a simplifed quick start help message"
 }
 
@@ -72,6 +73,19 @@ compile_image() {
 	fi
 }
 
+compile_modules() {
+	echo "Compiling Kernel Modules..."
+
+	make -j3 O=$COMPILE_DIR modules > /dev/null
+
+	if [ $? -eq 0 ]; then
+		echo "kernel modules compilation complete"
+	else
+		echo "kernel module compilation failed"
+		exit 1
+	fi
+}
+
 setup_env() {
 	mkdir -p $OUTPUT_DIR
 	cd $SOURCE_DIR
@@ -99,7 +113,7 @@ handle_outputs() {
 
 find_platforms
 
-while getopts p:han flag
+while getopts p:hanm flag
 do
 	case "${flag}" in
 		p)
@@ -114,6 +128,8 @@ do
 			exit 0
 			;;
 		n)	NFS_UPDATE=true
+			;;
+		m)	MOD_OVERRIDE=true
 			;;
 		:)
 			echo "Error: Option is missing an argument."
@@ -130,5 +146,8 @@ load_profile $PROFILE
 setup_env
 apply_config
 compile_image
+if [ "$MOD_COMPILE" = true ] || [ "$MOD_OVERRIDE" = true ]; then
+	compile_modules
+fi
 compile_dtbs
 handle_outputs

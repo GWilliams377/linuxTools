@@ -12,6 +12,7 @@ DTBS=(rzn1d400-db.dtb rzn1d400-db-both-gmacs.dtb rzn1d400-db-cm3-ethercat.dtb rz
 OUTPUT_DIR=$PWD/output/rzn1/
 NFS_DIR=/tftpboot/rzn1/
 CROSS_COMPILER_PATH="/usr/share/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf/bin"
+MOD_COMPILE=false
 
 export PATH=$CROSS_COMPILER_PATH:$PATH
 export CROSS_COMPILE="arm-linux-gnueabihf-"
