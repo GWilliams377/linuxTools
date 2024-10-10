@@ -35,6 +35,11 @@ display_usage_advanced() {
 }
 
 load_profile() {
+	if [ ! -d $PLATFORMS_DIR/$1 ]; then
+		echo "Error platform directory $PLATFORMS_DIR/$1 does not exist"
+		exit 1
+	fi
+
 	source $PLATFORMS_DIR/$1/constants.sh
 	source $PLATFORMS_DIR/$1/meta.sh
 	echo "$NAME Profile Selected"
