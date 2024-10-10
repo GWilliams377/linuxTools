@@ -51,7 +51,14 @@ compile_dtbs() {
 	for DTB in "${DTBS[@]}"
 	do :
 		make O=$COMPILE_DIR $VENDOR$DTB > /dev/null
+
+		if [ $? -ne 0 ]; then
+			echo "$DTB compilation failed"
+			exit 1
+		fi
 	done
+
+	echo "DTB compilation complete"
 }
 
 apply_config() {
