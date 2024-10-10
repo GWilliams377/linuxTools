@@ -58,7 +58,7 @@ compile_dtbs() {
 		fi
 	done
 
-	echo "DTB compilation complete"
+	echo "	* DTB compilation complete"
 }
 
 apply_config() {
@@ -78,9 +78,9 @@ compile_image() {
 	fi
 
 	if eval $COMPILE_CMD ; then
-		echo "kernel compilation complete"
+		echo "	* Kernel compilation complete"
 	else
-		echo "kernel compilation failed"
+		echo "Kernel compilation failed"
 		exit 1
 	fi
 }
@@ -91,9 +91,9 @@ compile_modules() {
 	make -j3 O=$COMPILE_DIR modules > /dev/null
 
 	if [ $? -eq 0 ]; then
-		echo "kernel modules compilation complete"
+		echo "	* Kernel module compilation complete"
 	else
-		echo "kernel module compilation failed"
+		echo "Kernel module compilation failed"
 		exit 1
 	fi
 }
